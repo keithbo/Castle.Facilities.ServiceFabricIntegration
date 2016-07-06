@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <authors>Keith Bosacker</authors>
+    <owners>Keith Bosacker</owners>
+    <licenseUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <title>Castle Windsor ServiceFabric Actors Integration</title>
+    <description>Azure ServiceFabric integration support for Castle Windsor</description>
+    <tags>Azure Service Fabric Castle Windsor Integration IoC Actors</tags>
+    <dependencies>
+      <group targetFramework="net452">
+        <dependency id="Microsoft.ServiceFabric.Actors" version="2.1.150"/>
+        <dependency id="Castle.Windsor" version="3.3.0"/>
+        <dependency id="Castle.Facilities.ServiceFabricIntegration" version="$version$"/>
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\$id$.dll" target="lib\net452" />
+  </files>
+</package>

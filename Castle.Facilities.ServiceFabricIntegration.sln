@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.ServiceFabricIntegration", "Castle.Facilities.ServiceFabricIntegration\Castle.Facilities.ServiceFabricIntegration.csproj", "{A6303CA7-8562-417E-ACAB-071D77F6DD42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.ServiceFabricIntegration.Actors", "Castle.Facilities.ServiceFabricIntegration.Actors\Castle.Facilities.ServiceFabricIntegration.Actors.csproj", "{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A6303CA7-8562-417E-ACAB-071D77F6DD42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6303CA7-8562-417E-ACAB-071D77F6DD42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6303CA7-8562-417E-ACAB-071D77F6DD42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6303CA7-8562-417E-ACAB-071D77F6DD42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
