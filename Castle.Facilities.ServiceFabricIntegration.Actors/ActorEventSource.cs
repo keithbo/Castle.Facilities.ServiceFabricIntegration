@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
-    [EventSource(Name = "Microsoft.Azure.ServiceFabric-Castle.Facilities.ServiceFabricIntegration.Actors")]
+    [EventSource(Name = "Castle.Facilities.ServiceFabricIntegration-Actors")]
     internal sealed class ActorEventSource : EventSource
     {
         public static readonly ActorEventSource Current = new ActorEventSource();

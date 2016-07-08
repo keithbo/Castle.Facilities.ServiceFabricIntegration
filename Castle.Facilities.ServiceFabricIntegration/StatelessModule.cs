@@ -71,7 +71,10 @@
                 {
                     try
                     {
-                        return kernel.Resolve<TService>();
+                        return kernel.Resolve<TService>(new
+                        {
+                            serviceContext = ctx
+                        });
                     }
                     catch (Exception e)
                     {

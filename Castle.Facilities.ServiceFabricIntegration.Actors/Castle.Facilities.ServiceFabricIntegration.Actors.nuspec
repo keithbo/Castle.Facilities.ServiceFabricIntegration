@@ -20,6 +20,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\$configuration$\$id$.dll" target="lib\net452" />
+    <file src="bin\$configuration$\$id$.dll" target="ref\net452" />
+    
+    <file src="bin\x64\$configuration$\$id$.dll" target="lib\net452" />
   </files>
 </package>

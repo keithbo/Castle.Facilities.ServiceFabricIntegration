@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Services.Runtime;
 
-    [EventSource(Name = "Microsoft.Azure.ServiceFabric-Castle.Facilities.ServiceFabricIntegration")]
+    [EventSource(Name = "Castle.Facilities.ServiceFabricIntegration")]
     internal sealed class ServiceEventSource : EventSource
     {
         public static readonly ServiceEventSource Current = new ServiceEventSource();
