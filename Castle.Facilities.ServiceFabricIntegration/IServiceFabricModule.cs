@@ -10,6 +10,13 @@
     public interface IServiceFabricModule
     {
         /// <summary>
+        /// Called during initialization phase of <see cref="ServiceFabricFacility"/> after each module is added to the facility
+        /// configuration.
+        /// </summary>
+        /// <param name="kernel"><see cref="IKernel"/></param>
+        void Init(IKernel kernel);
+
+        /// <summary>
         /// Called during the <see cref="ComponentModel"/> contribution phase of container configuration.
         /// </summary>
         /// <param name="kernel"><see cref="IKernel"/></param>

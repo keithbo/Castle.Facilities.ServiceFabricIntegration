@@ -6,11 +6,19 @@
     using Castle.Core.Internal;
     using Castle.MicroKernel;
     using Castle.MicroKernel.SubSystems.Conversion;
+    using MicroKernel.Registration;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
     internal class ActorModule : IServiceFabricModule
     {
+        public void Init(IKernel kernel)
+        {
+            kernel.Register(
+                Component.For<ActorDeactivationInterceptor>()
+                    .LifestyleTransient());
+        }
+
         public void Contribute(IKernel kernel, ComponentModel model)
         {
             var actorFlag = IsActorType(model) && HasActorAttributeSet(model, kernel.GetConversionManager());

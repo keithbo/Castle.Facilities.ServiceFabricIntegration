@@ -37,6 +37,8 @@
 
         protected override void Init()
         {
+            _config.Modules.ForEach(m => m.Init(Kernel));
+
             Kernel.ComponentModelBuilder.AddContributor(new ServiceFabricContributor(_config));
 
             Kernel.ComponentRegistered += OnComponentRegistered;

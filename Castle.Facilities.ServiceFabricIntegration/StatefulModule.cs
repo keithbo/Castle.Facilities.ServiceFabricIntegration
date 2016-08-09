@@ -11,6 +11,10 @@
 
     internal class StatefulModule : IServiceFabricModule
     {
+        public void Init(IKernel kernel)
+        {
+        }
+
         public void Contribute(IKernel kernel, ComponentModel model)
         {
             var serviceNameFlag = HasServiceTypeNameAttributeSet(model);
