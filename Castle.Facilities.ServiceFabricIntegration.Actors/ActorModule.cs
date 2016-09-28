@@ -55,18 +55,23 @@
         {
             public override Task RegisterAsync(IKernel kernel)
             {
-                return ActorRuntime.RegisterActorAsync<TActor>((ctx, info) => new ActorService(ctx, info, () =>
-                {
-                    try
+                return ActorRuntime.RegisterActorAsync<TActor>((ctx, info) =>
+                    new ActorService(ctx, info, (actorService, actorId) =>
                     {
-                        return kernel.Resolve<TActor>();
-                    }
-                    catch (Exception e)
-                    {
-                        ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", typeof(TActor), e);
-                        throw;
-                    }
-                }));
+                        try
+                        {
+                            return kernel.Resolve<TActor>(new
+                            {
+                                actorService,
+                                actorId
+                            });
+                        }
+                        catch (Exception e)
+                        {
+                            ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", typeof(TActor), e);
+                            throw;
+                        }
+                    }));
             }
         }
     }
