@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -15,12 +14,12 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 [assembly: Guid("94d42e34-b312-4dc7-b077-21d082e18bbc")]
-[assembly: AssemblyVersion("1.2.0")]
-[assembly: AssemblyFileVersion("1.2.0")]
+[assembly: AssemblyVersion("1.2.1")]
+[assembly: AssemblyFileVersion("1.2.1")]
 #if DEBUG
-[assembly: AssemblyInformationalVersion("1.2.0-alpha")]
+[assembly: AssemblyInformationalVersion("1.2.1-alpha")]
 [assembly: AssemblyConfiguration("debug")]
 #else
-[assembly: AssemblyInformationalVersion("1.2.0")]
+[assembly: AssemblyInformationalVersion("1.2.1")]
 [assembly: AssemblyConfiguration("retail")]
 #endif
