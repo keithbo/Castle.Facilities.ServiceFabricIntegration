@@ -1,4 +1,4 @@
-@echo=off
+@echo off
 SET list=Castle.Facilities.ServiceFabricIntegration,Castle.Facilities.ServiceFabricIntegration.Actors
 SET list=%list:@=,%
 SET DPROPS=Configuration=Debug

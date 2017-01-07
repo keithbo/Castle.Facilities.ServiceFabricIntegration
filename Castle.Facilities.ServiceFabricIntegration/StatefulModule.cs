@@ -2,7 +2,6 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Fabric;
     using System.Threading.Tasks;
     using Castle.Core;
     using Castle.Core.Internal;

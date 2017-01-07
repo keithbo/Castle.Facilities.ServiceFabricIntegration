@@ -13,7 +13,7 @@
     <tags>Azure Service Fabric Castle Windsor Integration IoC</tags>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="Microsoft.ServiceFabric.Services" version="2.2.207"/>
+        <dependency id="Microsoft.ServiceFabric.Services" version="[2.4.145]"/>
         <dependency id="Castle.Windsor" version="3.3.0"/>
       </group>
     </dependencies>
