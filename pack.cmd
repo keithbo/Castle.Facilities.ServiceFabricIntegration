@@ -1,11 +1,11 @@
 @echo off
 SET list=Castle.Facilities.ServiceFabricIntegration,Castle.Facilities.ServiceFabricIntegration.Actors
 SET list=%list:@=,%
-SET DPROPS=Configuration=Debug
-SET RPROPS=Configuration=Release
+SET Configuration=%1
 
 FOR %%a IN (%list%) DO (
-	nuget pack "%%a\%%a.csproj" -Build -Prop %DPROPS%
-	nuget pack "%%a\%%a.csproj" -Build -Prop %RPROPS%
+	msbuild "%%a\%%a.csproj" /p:Configuration="%Configuration%"
+	msbuild "%%a\%%a.csproj" /p:Platform="x64" /p:Configuration="%Configuration%"
+	nuget pack "%%a\%%a.csproj" -Symbols
 )
 
