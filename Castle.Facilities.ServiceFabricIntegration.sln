@@ -1,11 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.ServiceFabricIntegration", "Castle.Facilities.ServiceFabricIntegration\Castle.Facilities.ServiceFabricIntegration.csproj", "{A6303CA7-8562-417E-ACAB-071D77F6DD42}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Castle.Facilities.ServiceFabricIntegration.Actors", "Castle.Facilities.ServiceFabricIntegration.Actors\Castle.Facilities.ServiceFabricIntegration.Actors.csproj", "{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}"
+EndProject
+Project("{A07B5EB6-E848-4116-A8D0-A826331D98C6}") = "FabricTestApp", "FabricTestApp\FabricTestApp.sfproj", "{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestActor", "TestActor\TestActor.csproj", "{96415C0D-B614-4F14-B0A7-1A25B731C643}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestActor.Interfaces", "TestActor.Interfaces\TestActor.Interfaces.csproj", "{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStateless", "TestStateless\TestStateless.csproj", "{A1C27A0A-33F8-49B4-8C0A-A9805883C329}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestStateful", "TestStateful\TestStateful.csproj", "{CA4B208D-612D-4C08-AF33-5DC0B76F474F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +41,38 @@ Global
 		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Release|x64.ActiveCfg = Release|x64
 		{4EFB20D0-DB91-4BC8-B140-EF8DD1404A53}.Release|x64.Build.0 = Release|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Debug|x64.ActiveCfg = Debug|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Debug|x64.Build.0 = Debug|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Debug|x64.Deploy.0 = Debug|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Release|Any CPU.ActiveCfg = Release|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Release|x64.ActiveCfg = Release|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Release|x64.Build.0 = Release|x64
+		{A7DA2C7A-3F99-49BF-9081-1E2908D29FD9}.Release|x64.Deploy.0 = Release|x64
+		{96415C0D-B614-4F14-B0A7-1A25B731C643}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{96415C0D-B614-4F14-B0A7-1A25B731C643}.Debug|x64.ActiveCfg = Debug|x64
+		{96415C0D-B614-4F14-B0A7-1A25B731C643}.Debug|x64.Build.0 = Debug|x64
+		{96415C0D-B614-4F14-B0A7-1A25B731C643}.Release|Any CPU.ActiveCfg = Release|x64
+		{96415C0D-B614-4F14-B0A7-1A25B731C643}.Release|x64.ActiveCfg = Release|x64
+		{96415C0D-B614-4F14-B0A7-1A25B731C643}.Release|x64.Build.0 = Release|x64
+		{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}.Debug|x64.ActiveCfg = Debug|x64
+		{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}.Debug|x64.Build.0 = Debug|x64
+		{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}.Release|Any CPU.ActiveCfg = Release|x64
+		{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}.Release|x64.ActiveCfg = Release|x64
+		{A3980806-DB86-4FD9-90C6-FEC0A4468CF7}.Release|x64.Build.0 = Release|x64
+		{A1C27A0A-33F8-49B4-8C0A-A9805883C329}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{A1C27A0A-33F8-49B4-8C0A-A9805883C329}.Debug|x64.ActiveCfg = Debug|x64
+		{A1C27A0A-33F8-49B4-8C0A-A9805883C329}.Debug|x64.Build.0 = Debug|x64
+		{A1C27A0A-33F8-49B4-8C0A-A9805883C329}.Release|Any CPU.ActiveCfg = Release|x64
+		{A1C27A0A-33F8-49B4-8C0A-A9805883C329}.Release|x64.ActiveCfg = Release|x64
+		{A1C27A0A-33F8-49B4-8C0A-A9805883C329}.Release|x64.Build.0 = Release|x64
+		{CA4B208D-612D-4C08-AF33-5DC0B76F474F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CA4B208D-612D-4C08-AF33-5DC0B76F474F}.Debug|x64.ActiveCfg = Debug|x64
+		{CA4B208D-612D-4C08-AF33-5DC0B76F474F}.Debug|x64.Build.0 = Debug|x64
+		{CA4B208D-612D-4C08-AF33-5DC0B76F474F}.Release|Any CPU.ActiveCfg = Release|x64
+		{CA4B208D-612D-4C08-AF33-5DC0B76F474F}.Release|x64.ActiveCfg = Release|x64
+		{CA4B208D-612D-4C08-AF33-5DC0B76F474F}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

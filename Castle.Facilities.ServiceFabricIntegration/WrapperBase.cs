@@ -9,7 +9,7 @@
     /// Derivative types are free to be generic while the base <see cref="RegisterAsync"/> abstract does not
     /// require access to the generic types to be called.
     /// </summary>
-    /// <remarks>For example, this is used internally to allow generic registration of Statless and Stateful service types without losing the generic type arguments</remarks>
+    /// <remarks>For example, this is used internally to allow generic registration of Stateless and Stateful service types without losing the generic type arguments</remarks>
     public abstract class WrapperBase
     {
         /// <summary>
