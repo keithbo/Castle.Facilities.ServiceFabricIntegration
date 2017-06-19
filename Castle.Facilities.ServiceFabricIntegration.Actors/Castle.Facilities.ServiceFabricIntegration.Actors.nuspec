@@ -13,7 +13,7 @@
     <tags>Azure Service Fabric Castle Windsor Integration IoC Actors</tags>
     <dependencies>
       <group targetFramework="net452">
-        <dependency id="Microsoft.ServiceFabric.Actors" version="[2.5.216]"/>
+        <dependency id="Microsoft.ServiceFabric.Actors" version="[2.6.210]"/>
         <dependency id="Castle.Windsor" version="3.4.0"/>
         <dependency id="Castle.Facilities.ServiceFabricIntegration" version="$version$"/>
       </group>
