@@ -14,12 +14,12 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
 [assembly: Guid("4efb20d0-db91-4bc8-b140-ef8dd1404a53")]
-[assembly: AssemblyVersion("1.6.0")]
-[assembly: AssemblyFileVersion("1.6.0")]
+[assembly: AssemblyVersion("1.7.0")]
+[assembly: AssemblyFileVersion("1.7.0")]
 #if DEBUG
-[assembly: AssemblyInformationalVersion("1.6.0-alpha")]
+[assembly: AssemblyInformationalVersion("1.7.0-alpha")]
 [assembly: AssemblyConfiguration("debug")]
 #else
-[assembly: AssemblyInformationalVersion("1.6.0")]
+[assembly: AssemblyInformationalVersion("1.7.0")]
 [assembly: AssemblyConfiguration("retail")]
 #endif
