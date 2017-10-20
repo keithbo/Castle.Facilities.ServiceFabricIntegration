@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSource>True</IncludeSource>
+    <IncludeSymbols>True</IncludeSymbols>
     <Description>Azure ServiceFabric integration support for Castle Windsor</Description>
     <Company />
     <Copyright>Copyright ©  2017</Copyright>
