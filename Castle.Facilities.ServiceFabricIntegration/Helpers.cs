@@ -27,6 +27,12 @@
             return text != null && converter.PerformConversion<bool>(text);
         }
 
+        public static Type GetType(ComponentModel model, ITypeConverter converter, string attributeName)
+        {
+            var text = model.Configuration?.Attributes[attributeName];
+            return text == null ? null : converter.PerformConversion<Type>(text);
+        }
+
         public static WrapperBase MakeWrapper(IHandler handler, Type wrapperType, params object[] args)
         {
             return (WrapperBase)Activator.CreateInstance(wrapperType.MakeGenericType(handler.ComponentModel.Implementation), args);
