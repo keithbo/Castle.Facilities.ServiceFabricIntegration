@@ -4,5 +4,5 @@ SET list=%list:@=,%
 SET Version=%1
 
 FOR %%a IN (%list%) DO (
-	nuget push "%%a.%Version%.nupkg"
+	nuget push "%%a.%Version%.nupkg" -Source NuGet
 )

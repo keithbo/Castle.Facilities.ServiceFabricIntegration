@@ -20,7 +20,8 @@
             container.AddFacility<ServiceFabricFacility>(f => f.Configure(c => c.UsingActors()));
 
             container.Register(
-                Component.For<TestActor>().AsActor().LifestyleTransient());
+                Component.For<TestActorService>().LifestyleTransient(),
+                Component.For<TestActor>().AsActor<TestActor, TestActorService>().LifestyleTransient());
         }
     }
 }

@@ -7,17 +7,17 @@
     <IncludeSymbols>True</IncludeSymbols>
     <Description>Azure ServiceFabric integration support for Castle Windsor</Description>
     <Company />
-    <Copyright>Copyright ©  2017</Copyright>
+    <Copyright>Copyright ©  2018</Copyright>
     <Authors>Keith Bosacker</Authors>
-    <Version>1.8.0</Version>
+    <Version>1.8.1</Version>
     <PackageLicenseUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration</PackageProjectUrl>
     <PackageTags>Azure Service Fabric Castle Windsor Integration IoC</PackageTags>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\SignKey.snk</AssemblyOriginatorKeyFile>
     <Platforms>AnyCPU;x64</Platforms>
-    <AssemblyVersion>1.8.0.0</AssemblyVersion>
-    <FileVersion>1.8.0.0</FileVersion>
+    <AssemblyVersion>1.8.1.0</AssemblyVersion>
+    <FileVersion>1.8.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

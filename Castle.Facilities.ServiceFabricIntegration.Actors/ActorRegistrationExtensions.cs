@@ -29,6 +29,7 @@
         /// <returns>ComponentRegistration instance for continued registration</returns>
         public static ComponentRegistration<TActor> AsActor<TActor, TActorService>(this ComponentRegistration<TActor> registration)
             where TActor : ActorBase
+            where TActorService : ActorService
         {
             return registration
                 .AddAttributeDescriptor(FacilityConstants.ActorKey, bool.TrueString)
