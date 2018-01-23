@@ -19,7 +19,10 @@
                 Component.For<ActorDeactivationInterceptor>()
                     .LifestyleTransient(),
                 Component.For<ActorService>()
-                    .LifestyleTransient());
+                    .LifestyleTransient()
+                    .DependsOn(Dependency.OnValue("stateManagerFactory", null))
+                    .DependsOn(Dependency.OnValue("stateProvider", null))
+                    .DependsOn(Dependency.OnValue("settings", null)));
         }
 
         public void Contribute(IKernel kernel, ComponentModel model)

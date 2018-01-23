@@ -1,6 +1,7 @@
 ﻿namespace TestActor
 {
     using Castle.Facilities.ServiceFabricIntegration;
+    using Castle.Facilities.TypedFactory;
     using Castle.MicroKernel.Registration;
     using Castle.MicroKernel.SubSystems.Configuration;
     using Castle.Windsor;
@@ -17,11 +18,12 @@
         /// <param name="store">The configuration store.</param>
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
+            container.AddFacility<TypedFactoryFacility>();
             container.AddFacility<ServiceFabricFacility>(f => f.Configure(c => c.UsingActors()));
 
             container.Register(
                 Component.For<TestActorService>().LifestyleTransient(),
-                Component.For<TestActor>().AsActor<TestActor, TestActorService>().LifestyleTransient());
+                Component.For<TestActor>().AsActor<TestActor>().LifestyleTransient());
         }
     }
 }

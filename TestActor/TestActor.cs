@@ -19,7 +19,7 @@ namespace TestActor
     ///  - None: State is kept in memory only and not replicated.
     /// </remarks>
     [StatePersistence(StatePersistence.Persisted)]
-    internal class TestActor : Actor, ITestActor
+    public class TestActor : Actor, ITestActor
     {
         /// <summary>
         /// Initializes a new instance of TestActor
@@ -61,11 +61,13 @@ namespace TestActor
         /// </summary>
         /// <param name="count"></param>
         /// <returns></returns>
-        Task ITestActor.SetCountAsync(int count, CancellationToken cancellationToken)
+        async Task ITestActor.SetCountAsync(int count, CancellationToken cancellationToken)
         {
             // Requests are not guaranteed to be processed in order nor at most once.
             // The update function here verifies that the incoming count is greater than the current count to preserve order.
-            return this.StateManager.AddOrUpdateStateAsync("count", count, (key, value) => count > value ? count : value, cancellationToken);
+            await StateManager.AddOrUpdateStateAsync("count", count, (key, value) => count > value ? count : value, cancellationToken);
+
+            ActorEventSource.Current.ActorMessage(this, $"Setting count to {count}");
         }
     }
 }

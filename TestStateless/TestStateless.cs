@@ -8,6 +8,10 @@ using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace TestStateless
 {
+    using Microsoft.ServiceFabric.Actors;
+    using Microsoft.ServiceFabric.Actors.Client;
+    using TestActor.Interfaces;
+
     /// <summary>
     /// An instance of this class is created for each service instance by the Service Fabric runtime.
     /// </summary>
@@ -32,18 +36,27 @@ namespace TestStateless
         /// <param name="cancellationToken">Canceled when Service Fabric needs to shut down this service instance.</param>
         protected override async Task RunAsync(CancellationToken cancellationToken)
         {
-            // TODO: Replace the following sample code with your own logic 
-            //       or remove this RunAsync override if it's not needed in your service.
-
-            long iterations = 0;
-
-            while (true)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
+                // TODO: Replace the following sample code with your own logic 
+                //       or remove this RunAsync override if it's not needed in your service.
 
-                ServiceEventSource.Current.ServiceMessage(this.Context, $"{nameof(TestStateless)} Working-{++iterations}");
+                long iterations = 0;
+                ITestActor actor = ActorProxy.Create<ITestActor>(ActorId.CreateRandom());
+                while (true)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                    ServiceEventSource.Current.ServiceMessage(this.Context, $"{nameof(TestStateless)} Working-{++iterations}");
+                    await actor.SetCountAsync((int)iterations, cancellationToken);
+
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                ServiceEventSource.Current.ServiceMessage(this.Context, $"Exception: {ex}");
+                throw;
             }
         }
     }

@@ -9,7 +9,7 @@
     <Company />
     <Copyright>Copyright ©  2018</Copyright>
     <Authors>Keith Bosacker</Authors>
-    <Version>1.8.1</Version>
+    <Version>1.8.2</Version>
     <PackageLicenseUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration</PackageProjectUrl>
     <PackageTags>Azure Service Fabric Castle Windsor Integration IoC Actors</PackageTags>
