@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net452</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
     <Platforms>AnyCPU;x64</Platforms>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     <ApplicationIcon />
