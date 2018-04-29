@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.ServiceFabric.Actors">
-      <Version>3.0.456</Version>
+      <Version>3.0.480</Version>
     </PackageReference>
   </ItemGroup>
 
