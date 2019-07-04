@@ -1,7 +1,9 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Fabric;
     using System.Threading.Tasks;
     using Castle.Core;
     using Castle.Core.Internal;
@@ -75,10 +77,10 @@
                 {
                     try
                     {
-                        return kernel.Resolve<TService>(new
-                        {
-                            serviceContext = ctx
-                        });
+                        return kernel.Resolve<TService>(
+                            new Arguments()
+                                .AddTyped<StatefulServiceContext>(ctx)
+                        );
                     }
                     catch (Exception e)
                     {

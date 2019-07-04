@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Fabric;
     using System.Threading.Tasks;
     using Castle.Core;
     using Castle.Core.Internal;
@@ -75,10 +76,10 @@
                 {
                     try
                     {
-                        return kernel.Resolve<TService>(new
-                        {
-                            serviceContext = ctx
-                        });
+                        return kernel.Resolve<TService>(
+                            new Arguments()
+                                .AddTyped<StatelessServiceContext>(ctx)
+                        );
                     }
                     catch (Exception e)
                     {

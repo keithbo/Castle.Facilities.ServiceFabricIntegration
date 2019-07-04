@@ -79,34 +79,33 @@
 
             private static Func<StatefulServiceContext, ActorTypeInformation, ActorService> CreateRegistrationFunc(IKernel kernel, Type serviceType)
             {
-                Func<ActorService, ActorId, ActorBase> actorResolveFunc = (actorService, actorId) =>
+                ActorBase ActorResolveFunc(ActorService actorService, ActorId actorId)
                 {
                     try
                     {
-                        return kernel.Resolve<TActor>(new
-                        {
-                            actorService,
-                            actorId
-                        });
+                        return kernel.Resolve<TActor>(
+                            new Arguments()
+                                .AddTyped<ActorService>(actorService)
+                                .AddTyped<ActorId>(actorId)
+                        );
                     }
                     catch (Exception e)
                     {
                         ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", typeof(TActor), e);
                         throw;
                     }
-                };
+                }
 
                 return (ctx, info) =>
                 {
                     try
                     {
-                        return (ActorService)kernel.Resolve(serviceType,
-                            new
-                            {
-                                context = ctx,
-                                actorTypeInfo = info,
-                                actorFactory = actorResolveFunc
-                            });
+                        return (ActorService) kernel.Resolve(serviceType,
+                            new Arguments()
+                                .AddTyped<StatefulServiceContext>(ctx)
+                                .AddTyped<ActorTypeInformation>(info)
+                                .AddTyped<Func<ActorService, ActorId, ActorBase>>(ActorResolveFunc)
+                        );
                     }
                     catch (Exception e)
                     {
