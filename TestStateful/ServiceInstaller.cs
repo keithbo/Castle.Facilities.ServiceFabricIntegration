@@ -5,6 +5,7 @@
     using Castle.MicroKernel.Registration;
     using Castle.MicroKernel.SubSystems.Configuration;
     using Castle.Windsor;
+    using Microsoft.ServiceFabric.Data;
 
     /// <summary>
     /// Default windsor installer for basic test setup
@@ -22,7 +23,10 @@
             container.AddFacility<ServiceFabricFacility>();
 
             container.Register(
-                Component.For<TestStateful>().AsStatefulService("TestStatefulType"));
+                Component.For<TestStateful>().AsStatefulService("TestStatefulType", c =>
+                {
+                    c.StateManagerConfiguration = new ReliableStateManagerConfiguration(replicatorSettingsSectionName: "TestStatefulReplicatorConfig");
+                }));
         }
     }
 }

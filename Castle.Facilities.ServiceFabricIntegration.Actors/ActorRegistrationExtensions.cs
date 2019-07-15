@@ -1,5 +1,6 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
+    using System;
     using Castle.MicroKernel.Registration;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
@@ -13,11 +14,17 @@
         /// </summary>
         /// <typeparam name="TActor">Type must derive from ActorBase</typeparam>
         /// <param name="registration">ComponentRegistration instance</param>
+        /// <param name="configure">Delegate action to configure actor registration</param>
         /// <returns>ComponentRegistration instance for continued registration</returns>
-        public static ComponentRegistration<TActor> AsActor<TActor>(this ComponentRegistration<TActor> registration)
+        public static ComponentRegistration<TActor> AsActor<TActor>(this ComponentRegistration<TActor> registration, Action<IActorConfigurer> configure = null)
             where TActor : ActorBase
         {
-            return AsActor<TActor, ActorService>(registration);
+            var configuration = new ActorConfiguration();
+            configure?.Invoke(configuration);
+
+            return registration
+                .AddAttributeDescriptor(FacilityConstants.ActorKey, bool.TrueString)
+                .AddAttributeDescriptor(FacilityConstants.ActorServiceTypeKey, configuration.ServiceType.AssemblyQualifiedName);
         }
 
         /// <summary>
@@ -31,9 +38,7 @@
             where TActor : ActorBase
             where TActorService : ActorService
         {
-            return registration
-                .AddAttributeDescriptor(FacilityConstants.ActorKey, bool.TrueString)
-                .AddAttributeDescriptor(FacilityConstants.ActorServiceTypeKey, typeof(TActorService).AssemblyQualifiedName);
+            return registration.AsActor<TActor>(c => c.WithService<TActorService>());
         }
 
         /// <summary>

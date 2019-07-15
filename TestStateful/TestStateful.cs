@@ -9,13 +9,15 @@ using Microsoft.ServiceFabric.Services.Runtime;
 
 namespace TestStateful
 {
+    using Microsoft.ServiceFabric.Data;
+
     /// <summary>
     /// An instance of this class is created for each service replica by the Service Fabric runtime.
     /// </summary>
     internal sealed class TestStateful : StatefulService
     {
-        public TestStateful(StatefulServiceContext serviceContext)
-            : base(serviceContext)
+        public TestStateful(StatefulServiceContext serviceContext, IReliableStateManagerReplica reliableStateManagerReplica)
+            : base(serviceContext, reliableStateManagerReplica)
         { }
 
         /// <summary>

@@ -1,7 +1,6 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Fabric;
     using System.Threading.Tasks;
@@ -9,6 +8,7 @@
     using Castle.Core.Internal;
     using Castle.MicroKernel;
     using Castle.MicroKernel.SubSystems.Conversion;
+    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Runtime;
 
     internal class StatefulModule : IServiceFabricModule
@@ -38,7 +38,11 @@
 
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
-            Helpers.MakeWrapper(handler, typeof(StatefulWrapper<>), handler.GetProperty(FacilityConstants.ServiceTypeNameKey))
+            var stateManagerConfig = handler.ComponentModel.ExtendedProperties[typeof(ReliableStateManagerConfiguration)] as ReliableStateManagerConfiguration;
+            new StatefulWrapper(
+                (string)handler.GetProperty(FacilityConstants.ServiceTypeNameKey),
+                handler.ComponentModel.Implementation,
+                stateManagerConfig)
                 .RegisterAsync(kernel)
                 .GetAwaiter()
                 .GetResult();
@@ -61,14 +65,17 @@
             return Helpers.IsFlag(model, converter, FacilityConstants.StatefulServiceKey);
         }
 
-        public class StatefulWrapper<TService> : WrapperBase
-            where TService : StatefulServiceBase
+        public class StatefulWrapper : WrapperBase
         {
             private readonly string _serviceTypeName;
+            private readonly Type _serviceType;
+            private readonly ReliableStateManagerConfiguration _stateManagerConfiguration;
 
-            public StatefulWrapper(string serviceTypeName)
+            public StatefulWrapper(string serviceTypeName, Type serviceType, ReliableStateManagerConfiguration stateManagerConfiguration)
             {
                 _serviceTypeName = serviceTypeName;
+                _serviceType = serviceType;
+                _stateManagerConfiguration = stateManagerConfiguration;
             }
 
             public override Task RegisterAsync(IKernel kernel)
@@ -77,14 +84,18 @@
                 {
                     try
                     {
-                        return kernel.Resolve<TService>(
-                            new Arguments()
-                                .AddTyped<StatefulServiceContext>(ctx)
-                        );
+                        var arguments = new Arguments();
+                        arguments.AddTyped<StatefulServiceContext>(ctx);
+                        if (_stateManagerConfiguration != null)
+                        {
+                            arguments.AddTyped<IReliableStateManagerReplica>(new ReliableStateManager(ctx, _stateManagerConfiguration));
+                        }
+
+                        return (StatefulServiceBase)kernel.Resolve(_serviceType, arguments);
                     }
                     catch (Exception e)
                     {
-                        ServiceEventSource.Current.Message("Failed to resolve StatefulService type {0}.\n{1}", typeof(TService), e);
+                        ServiceEventSource.Current.Message("Failed to resolve StatefulService type {0}.\n{1}", _serviceType, e);
                         throw;
                     }
                 });
