@@ -40,9 +40,9 @@
         {
             var stateManagerConfig = handler.ComponentModel.ExtendedProperties[typeof(ReliableStateManagerConfiguration)] as ReliableStateManagerConfiguration;
             new StatefulWrapper(
-                (string)handler.GetProperty(FacilityConstants.ServiceTypeNameKey),
-                handler.ComponentModel.Implementation,
-                stateManagerConfig)
+                    (string)handler.GetProperty(FacilityConstants.ServiceTypeNameKey),
+                    handler.ComponentModel.Implementation,
+                    stateManagerConfig)
                 .RegisterAsync(kernel)
                 .GetAwaiter()
                 .GetResult();
@@ -65,7 +65,7 @@
             return Helpers.IsFlag(model, converter, FacilityConstants.StatefulServiceKey);
         }
 
-        public class StatefulWrapper : WrapperBase
+        public class StatefulWrapper : IRegistrationWrapper
         {
             private readonly string _serviceTypeName;
             private readonly Type _serviceType;
@@ -78,7 +78,7 @@
                 _stateManagerConfiguration = stateManagerConfiguration;
             }
 
-            public override Task RegisterAsync(IKernel kernel)
+            public Task RegisterAsync(IKernel kernel)
             {
                 return ServiceRuntime.RegisterServiceAsync(_serviceTypeName, ctx =>
                 {

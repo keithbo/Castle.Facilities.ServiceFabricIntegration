@@ -33,9 +33,9 @@
             return text == null ? null : converter.PerformConversion<Type>(text);
         }
 
-        public static WrapperBase MakeWrapper(IHandler handler, Type wrapperType, params object[] args)
+        public static IRegistrationWrapper MakeWrapper(IHandler handler, Type wrapperType, params object[] args)
         {
-            return (WrapperBase)Activator.CreateInstance(wrapperType.MakeGenericType(handler.ComponentModel.Implementation), args);
+            return (IRegistrationWrapper)Activator.CreateInstance(wrapperType.MakeGenericType(handler.ComponentModel.Implementation), args);
         }
 
         public static object GetProperty(this IHandler handler, string name)

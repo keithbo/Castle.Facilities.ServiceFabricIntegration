@@ -10,13 +10,13 @@
     /// require access to the generic types to be called.
     /// </summary>
     /// <remarks>For example, this is used internally to allow generic registration of Stateless and Stateful service types without losing the generic type arguments</remarks>
-    public abstract class WrapperBase
+    public interface IRegistrationWrapper
     {
         /// <summary>
         /// Register using the provided IKernel.
         /// </summary>
         /// <param name="kernel"><see cref="IKernel"/></param>
         /// <returns><see cref="Task"/></returns>
-        public abstract Task RegisterAsync(IKernel kernel);
+        Task RegisterAsync(IKernel kernel);
     }
 }

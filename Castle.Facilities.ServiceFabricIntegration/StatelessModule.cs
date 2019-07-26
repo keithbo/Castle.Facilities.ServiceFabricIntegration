@@ -37,7 +37,9 @@
 
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
-            Helpers.MakeWrapper(handler, typeof(StatelessWrapper<>), handler.GetProperty(FacilityConstants.ServiceTypeNameKey))
+            new StatelessWrapper(
+                    (string)handler.GetProperty(FacilityConstants.ServiceTypeNameKey),
+                    handler.ComponentModel.Implementation)
                 .RegisterAsync(kernel)
                 .GetAwaiter()
                 .GetResult();
@@ -60,30 +62,31 @@
             return Helpers.IsFlag(model, converter, FacilityConstants.StatelessServiceKey);
         }
 
-        public class StatelessWrapper<TService> : WrapperBase
-            where TService : StatelessService
+        public class StatelessWrapper : IRegistrationWrapper
         {
             private readonly string _serviceTypeName;
+            private readonly Type _serviceType;
 
-            public StatelessWrapper(string serviceTypeName)
+            public StatelessWrapper(string serviceTypeName, Type serviceType)
             {
                 _serviceTypeName = serviceTypeName;
+                _serviceType = serviceType;
             }
 
-            public override Task RegisterAsync(IKernel kernel)
+            public Task RegisterAsync(IKernel kernel)
             {
                 return ServiceRuntime.RegisterServiceAsync(_serviceTypeName, ctx =>
                 {
                     try
                     {
-                        return kernel.Resolve<TService>(
-                            new Arguments()
-                                .AddTyped<StatelessServiceContext>(ctx)
-                        );
+                        var arguments = new Arguments();
+                        arguments.AddTyped<StatelessServiceContext>(ctx);
+
+                        return (StatelessService)kernel.Resolve(_serviceType, arguments);
                     }
                     catch (Exception e)
                     {
-                        ServiceEventSource.Current.Message("Failed to resolve StatelessService type {0}.\n{1}", typeof(TService), e);
+                        ServiceEventSource.Current.Message("Failed to resolve StatelessService type {0}.\n{1}", _serviceType, e);
                         throw;
                     }
                 });

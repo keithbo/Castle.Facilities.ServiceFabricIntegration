@@ -1,7 +1,10 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Fabric;
+    using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
     using Castle.Core;
     using Castle.Core.Internal;
@@ -10,9 +13,39 @@
     using MicroKernel.Registration;
     using Microsoft.ServiceFabric.Actors;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Expression=System.Linq.Expressions.Expression;
 
     internal class ActorModule : IServiceFabricModule
     {
+        /// <summary>
+        /// Generic capture of <see cref="ActorRuntime.RegisterActorAsync{TActor}(Func{StatefulServiceContext, ActorTypeInformation, ActorService}, TimeSpan, CancellationToken)"/>
+        /// to be realized upon registration of an actor type
+        /// </summary>
+        private static readonly MethodInfo RuntimeRegistrationMethod;
+
+        /// <summary>
+        /// cache compiled types to avoid re-compile in case of duplicate type
+        /// </summary>
+        private static readonly ConcurrentDictionary<Type, Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task>> RegistrationCache;
+
+        static ActorModule()
+        {
+            RuntimeRegistrationMethod = typeof(ActorRuntime).GetMethod(
+                "RegisterActorAsync",
+                BindingFlags.Static | BindingFlags.Public,
+                null,
+                CallingConventions.Any,
+                new Type[]
+                {
+                    typeof(Func<StatefulServiceContext,ActorTypeInformation,ActorService>),
+                    typeof(TimeSpan),
+                    typeof(CancellationToken)
+                },
+                new ParameterModifier[0]);
+
+            RegistrationCache = new ConcurrentDictionary<Type, Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task>>();
+        }
+
         public void Init(IKernel kernel)
         {
             kernel.Register(
@@ -46,7 +79,7 @@
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
             handler.ComponentModel.Interceptors.Add(new InterceptorReference(typeof(ActorDeactivationInterceptor)));
-            Helpers.MakeWrapper(handler, typeof(ActorWrapper<>))
+            new ActorWrapper(handler.ComponentModel.Implementation)
                 .RegisterAsync(kernel)
                 .GetAwaiter()
                 .GetResult();
@@ -67,23 +100,46 @@
             return Helpers.GetType(model, converter, FacilityConstants.ActorServiceTypeKey);
         }
 
-        public class ActorWrapper<TActor> : WrapperBase
-            where TActor : ActorBase
+        public class ActorWrapper : IRegistrationWrapper
         {
-            public override Task RegisterAsync(IKernel kernel)
-            {
-                var serviceType = kernel.GetHandler(typeof(TActor)).GetProperty<Type>(FacilityConstants.ActorServiceTypeKey);
+            private readonly Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task> _registerActorAsync;
+            private readonly Type _actorType;
 
-                return ActorRuntime.RegisterActorAsync<TActor>(CreateRegistrationFunc(kernel, serviceType));
+            public ActorWrapper(Type actorType)
+            {
+                _actorType = actorType;
+                _registerActorAsync = RegistrationCache.GetOrAdd(_actorType, CreateRegistrationFunc);
             }
 
-            private static Func<StatefulServiceContext, ActorTypeInformation, ActorService> CreateRegistrationFunc(IKernel kernel, Type serviceType)
+            public Task RegisterAsync(IKernel kernel)
+            {
+                var serviceType = kernel.GetHandler(_actorType).GetProperty<Type>(FacilityConstants.ActorServiceTypeKey);
+
+                return _registerActorAsync(CreateFactoryFunc(kernel, serviceType, _actorType));
+            }
+
+            private static Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task> CreateRegistrationFunc(Type actorType)
+            {
+                var realizedMethodInfo = RuntimeRegistrationMethod.MakeGenericMethod(actorType);
+                var factoryParam = Expression.Parameter(typeof(Func<StatefulServiceContext, ActorTypeInformation, ActorService>));
+                var call = Expression.Call(null, realizedMethodInfo,
+                    factoryParam,
+                    Expression.Constant(default(TimeSpan)),
+                    Expression.Constant(default(CancellationToken)));
+
+                return Expression
+                    .Lambda<Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task>>(call, factoryParam)
+                    .Compile();
+            }
+
+            private static Func<StatefulServiceContext, ActorTypeInformation, ActorService> CreateFactoryFunc(IKernel kernel, Type serviceType, Type actorType)
             {
                 ActorBase ActorResolveFunc(ActorService actorService, ActorId actorId)
                 {
                     try
                     {
-                        return kernel.Resolve<TActor>(
+                        return (ActorBase) kernel.Resolve(
+                            actorType,
                             new Arguments()
                                 .AddTyped<ActorService>(actorService)
                                 .AddTyped<ActorId>(actorId)
@@ -91,7 +147,7 @@
                     }
                     catch (Exception e)
                     {
-                        ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", typeof(TActor), e);
+                        ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", actorType, e);
                         throw;
                     }
                 }
@@ -100,7 +156,8 @@
                 {
                     try
                     {
-                        return (ActorService) kernel.Resolve(serviceType,
+                        return (ActorService) kernel.Resolve(
+                            serviceType,
                             new Arguments()
                                 .AddTyped<StatefulServiceContext>(ctx)
                                 .AddTyped<ActorTypeInformation>(info)
