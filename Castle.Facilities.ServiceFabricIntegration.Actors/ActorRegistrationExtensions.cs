@@ -19,12 +19,10 @@
         public static ComponentRegistration<TActor> AsActor<TActor>(this ComponentRegistration<TActor> registration, Action<IActorConfigurer> configure = null)
             where TActor : ActorBase
         {
-            var configuration = new ActorConfiguration();
+            var configuration = new ActorConfiguration<TActor>(registration);
             configure?.Invoke(configuration);
 
-            return registration
-                .AddAttributeDescriptor(FacilityConstants.ActorKey, bool.TrueString)
-                .AddAttributeDescriptor(FacilityConstants.ActorServiceTypeKey, configuration.ServiceType.AssemblyQualifiedName);
+            return configuration.Build();
         }
 
         /// <summary>

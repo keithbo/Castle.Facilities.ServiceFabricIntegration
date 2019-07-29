@@ -22,11 +22,11 @@
 
             var statelessFlag = IsStatelessType(model) && HasStatelessAttributeSet(model, kernel.GetConversionManager());
 
-            model.ExtendedProperties[FacilityConstants.StatelessServiceKey] = serviceNameFlag && statelessFlag;
+            model.SetProperty(FacilityConstants.StatelessServiceKey, serviceNameFlag && statelessFlag);
 
             if (serviceNameFlag && statelessFlag)
             {
-                model.ExtendedProperties[FacilityConstants.ServiceTypeNameKey] = model.Configuration.Attributes[FacilityConstants.ServiceTypeNameKey];
+                model.SetProperty(FacilityConstants.ServiceTypeNameKey, model.GetAttribute(FacilityConstants.ServiceTypeNameKey));
             }
         }
 
@@ -38,7 +38,7 @@
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
             new StatelessWrapper(
-                    (string)handler.GetProperty(FacilityConstants.ServiceTypeNameKey),
+                    handler.GetProperty<string>(FacilityConstants.ServiceTypeNameKey),
                     handler.ComponentModel.Implementation)
                 .RegisterAsync(kernel)
                 .GetAwaiter()

@@ -23,11 +23,11 @@
 
             var statefulFlag = IsStatefulType(model) && HasStatefulAttributeSet(model, kernel.GetConversionManager());
 
-            model.ExtendedProperties[FacilityConstants.StatefulServiceKey] = serviceNameFlag && statefulFlag;
+            model.SetProperty(FacilityConstants.StatefulServiceKey, serviceNameFlag && statefulFlag);
 
             if (serviceNameFlag && statefulFlag)
             {
-                model.ExtendedProperties[FacilityConstants.ServiceTypeNameKey] = model.Configuration.Attributes[FacilityConstants.ServiceTypeNameKey];
+                model.SetProperty(FacilityConstants.ServiceTypeNameKey, model.GetAttribute(FacilityConstants.ServiceTypeNameKey));
             }
         }
 
@@ -38,16 +38,25 @@
 
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
-            var stateManagerConfig = handler.ComponentModel.ExtendedProperties[typeof(ReliableStateManagerConfiguration)] as ReliableStateManagerConfiguration;
+            var model = handler.ComponentModel;
+
+            Type stateManagerDependencyType = null;
+            var stateManagerConfig = model.GetProperty<ReliableStateManagerConfiguration>(typeof(ReliableStateManagerConfiguration));
+            if (!(stateManagerConfig == null || model.TryGetDependencyType<ReliableStateManager>(out stateManagerDependencyType)))
+            {
+                throw new ComponentRegistrationException($"Failed to register StatefulService {model.Implementation}. Could not locate a valid dependency input that accepts {typeof(ReliableStateManager)} when an explicit state manager configuration is specified.");
+            }
+
             new StatefulWrapper(
-                    (string)handler.GetProperty(FacilityConstants.ServiceTypeNameKey),
-                    handler.ComponentModel.Implementation,
-                    stateManagerConfig)
+                    handler.GetProperty<string>(FacilityConstants.ServiceTypeNameKey),
+                    model.Implementation,
+                    stateManagerConfig,
+                    stateManagerDependencyType)
                 .RegisterAsync(kernel)
                 .GetAwaiter()
                 .GetResult();
 
-            ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, handler.ComponentModel.Implementation.Name);
+            ServiceEventSource.Current.ServiceTypeRegistered(Process.GetCurrentProcess().Id, model.Implementation.Name);
         }
 
         private static bool IsStatefulType(ComponentModel model)
@@ -70,12 +79,14 @@
             private readonly string _serviceTypeName;
             private readonly Type _serviceType;
             private readonly ReliableStateManagerConfiguration _stateManagerConfiguration;
+            private readonly Type _stateManagerDependencyType;
 
-            public StatefulWrapper(string serviceTypeName, Type serviceType, ReliableStateManagerConfiguration stateManagerConfiguration)
+            public StatefulWrapper(string serviceTypeName, Type serviceType, ReliableStateManagerConfiguration stateManagerConfiguration, Type stateManagerDependencyType)
             {
                 _serviceTypeName = serviceTypeName;
                 _serviceType = serviceType;
                 _stateManagerConfiguration = stateManagerConfiguration;
+                _stateManagerDependencyType = stateManagerDependencyType;
             }
 
             public Task RegisterAsync(IKernel kernel)
@@ -88,7 +99,7 @@
                         arguments.AddTyped<StatefulServiceContext>(ctx);
                         if (_stateManagerConfiguration != null)
                         {
-                            arguments.AddTyped<IReliableStateManagerReplica>(new ReliableStateManager(ctx, _stateManagerConfiguration));
+                            arguments.AddTyped(_stateManagerDependencyType, new ReliableStateManager(ctx, _stateManagerConfiguration));
                         }
 
                         return (StatefulServiceBase)kernel.Resolve(_serviceType, arguments);

@@ -1,10 +1,7 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
     using System;
-    using Castle.Components.DictionaryAdapter;
-    using Castle.MicroKernel.ModelBuilder.Descriptors;
     using Castle.MicroKernel.Registration;
-    using Microsoft.ServiceFabric.Data;
     using Microsoft.ServiceFabric.Services.Runtime;
 
     /// <summary>
@@ -22,8 +19,12 @@
         public static ComponentRegistration<TService> AsStatelessService<TService>(this ComponentRegistration<TService> registration, string serviceTypeName)
             where TService : StatelessService
         {
-            return registration.AddAttributeDescriptor(FacilityConstants.StatelessServiceKey, bool.TrueString)
-                               .AddAttributeDescriptor(FacilityConstants.ServiceTypeNameKey, serviceTypeName);
+            var configuration = new StatelessConfiguration<TService>(registration)
+            {
+                ServiceTypeName = serviceTypeName
+            };
+
+            return configuration.Build();
         }
 
         /// <summary>
@@ -37,30 +38,13 @@
         public static ComponentRegistration<TService> AsStatefulService<TService>(this ComponentRegistration<TService> registration, string serviceTypeName, Action<IStatefulConfigurer> configure = null)
             where TService : StatefulServiceBase
         {
-            var configuration = new StatefulConfiguration();
+            var configuration = new StatefulConfiguration<TService>(registration)
+            {
+                ServiceTypeName = serviceTypeName
+            };
             configure?.Invoke(configuration);
 
-            if (configuration.StateManagerConfiguration != null)
-            {
-                registration.ExtendedProperties(
-                    Property
-                        .ForKey<ReliableStateManagerConfiguration>()
-                        .Eq(configuration.StateManagerConfiguration));
-            }
-
-            return registration
-                .AddAttributeDescriptor(FacilityConstants.StatefulServiceKey, bool.TrueString)
-                .AddAttributeDescriptor(FacilityConstants.ServiceTypeNameKey, serviceTypeName);
+            return configuration.Build();
         }
-    }
-
-    public interface IStatefulConfigurer
-    {
-        ReliableStateManagerConfiguration StateManagerConfiguration { get; set; }
-    }
-
-    public class StatefulConfiguration : IStatefulConfigurer
-    {
-        public ReliableStateManagerConfiguration StateManagerConfiguration { get; set; }
     }
 }

@@ -55,7 +55,8 @@
                     .LifestyleTransient()
                     .DependsOn(Dependency.OnValue("stateManagerFactory", null))
                     .DependsOn(Dependency.OnValue("stateProvider", null))
-                    .DependsOn(Dependency.OnValue("settings", null)));
+                    .DependsOn(Dependency.OnValue("settings", null))
+            );
         }
 
         public void Contribute(IKernel kernel, ComponentModel model)
@@ -63,11 +64,11 @@
             var actorFlag = IsActorType(model) &&
                             HasActorAttributeSet(model, kernel.GetConversionManager());
 
-            model.ExtendedProperties[FacilityConstants.ActorKey] = actorFlag;
+            model.SetProperty(FacilityConstants.ActorKey, actorFlag);
             if (actorFlag)
             {
                 var actorServiceType = GetActorServiceTypeAttribute(model, kernel.GetConversionManager()) ?? typeof(ActorService);
-                model.ExtendedProperties[FacilityConstants.ActorServiceTypeKey] = actorServiceType;
+                model.SetProperty(FacilityConstants.ActorServiceTypeKey, actorServiceType);
             }
         }
 
@@ -78,8 +79,31 @@
 
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
-            handler.ComponentModel.Interceptors.Add(new InterceptorReference(typeof(ActorDeactivationInterceptor)));
-            new ActorWrapper(handler.ComponentModel.Implementation)
+            var actorModel = handler.ComponentModel;
+
+            var serviceType = handler.GetProperty<Type>(FacilityConstants.ActorServiceTypeKey);
+            var serviceHandler = kernel.GetHandler(serviceType);
+            if (serviceHandler == null)
+            {
+                throw new ComponentRegistrationException($"Component for ActorService {serviceType} must be registered before Actor {actorModel.Implementation}");
+            }
+
+            var serviceModel = serviceHandler.ComponentModel;
+
+            var stateManagerFactory = actorModel.GetProperty<Func<ActorBase, IActorStateProvider, IActorStateManager>>(typeof(Func<ActorBase, IActorStateProvider, IActorStateManager>));
+            if (stateManagerFactory != null && serviceModel.GetDependencyFor(typeof(Func<ActorBase, IActorStateProvider, IActorStateManager>)) == null)
+            {
+                throw new ComponentRegistrationException($"Failed to register Actor {actorModel.Implementation}. Could not locate a valid dependency on {serviceType} that accepts {typeof(Func<ActorBase, IActorStateProvider, IActorStateManager>)} when StateManagerFactory delegate is set.");
+            }
+
+            var actorServiceSettings = actorModel.GetProperty<ActorServiceSettings>(typeof(ActorServiceSettings));
+            if (actorServiceSettings != null && serviceModel.GetDependencyFor(typeof(ActorServiceSettings)) == null)
+            {
+                throw new ComponentRegistrationException($"Failed to register Actor {actorModel.Implementation}. Could not locate a valid dependency on {serviceType} that accepts {typeof(ActorServiceSettings)} when ActorServiceSettings is set.");
+            }
+
+            actorModel.Interceptors.Add(new InterceptorReference(typeof(ActorDeactivationInterceptor)));
+            new ActorWrapper(serviceType, actorModel.Implementation, stateManagerFactory, actorServiceSettings)
                 .RegisterAsync(kernel)
                 .GetAwaiter()
                 .GetResult();
@@ -103,19 +127,66 @@
         public class ActorWrapper : IRegistrationWrapper
         {
             private readonly Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task> _registerActorAsync;
+            private readonly Type _serviceType;
             private readonly Type _actorType;
+            private readonly Func<ActorBase, IActorStateProvider, IActorStateManager> _stateManagerFactory;
+            private readonly ActorServiceSettings _actorServiceSettings;
 
-            public ActorWrapper(Type actorType)
+            public ActorWrapper(Type serviceType, Type actorType, Func<ActorBase, IActorStateProvider, IActorStateManager> stateManagerFactory, ActorServiceSettings actorServiceSettings)
             {
+                _serviceType = serviceType;
                 _actorType = actorType;
                 _registerActorAsync = RegistrationCache.GetOrAdd(_actorType, CreateRegistrationFunc);
+                _stateManagerFactory = stateManagerFactory;
+                _actorServiceSettings = actorServiceSettings;
             }
 
             public Task RegisterAsync(IKernel kernel)
             {
-                var serviceType = kernel.GetHandler(_actorType).GetProperty<Type>(FacilityConstants.ActorServiceTypeKey);
+                return _registerActorAsync(CreateFactoryFunc(kernel));
+            }
 
-                return _registerActorAsync(CreateFactoryFunc(kernel, serviceType, _actorType));
+            private Func<StatefulServiceContext, ActorTypeInformation, ActorService> CreateFactoryFunc(IKernel kernel)
+            {
+                ActorBase ActorResolveFunc(ActorService actorService, ActorId actorId)
+                {
+                    try
+                    {
+                        return (ActorBase) kernel.Resolve(
+                            _actorType,
+                            new Arguments()
+                                .AddTyped(actorService)
+                                .AddTyped(actorId)
+                        );
+                    }
+                    catch (Exception e)
+                    {
+                        ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", _actorType, e);
+                        throw;
+                    }
+                }
+
+                return (ctx, info) =>
+                {
+                    try
+                    {
+                        return (ActorService) kernel.Resolve(
+                            _serviceType,
+                            new Arguments()
+                                .AddTyped(ctx)
+                                .AddTyped(info)
+                                .AddTyped<Func<ActorService, ActorId, ActorBase>>(ActorResolveFunc)
+                                .AddTyped(_stateManagerFactory)
+                                .AddTyped<IActorStateProvider>(null)
+                                .AddTyped(_actorServiceSettings)
+                        );
+                    }
+                    catch (Exception e)
+                    {
+                        ActorEventSource.Current.Message("Failed to resolve ActorService type {0}.\n{1}", _serviceType, e);
+                        throw;
+                    }
+                };
             }
 
             private static Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task> CreateRegistrationFunc(Type actorType)
@@ -130,46 +201,6 @@
                 return Expression
                     .Lambda<Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task>>(call, factoryParam)
                     .Compile();
-            }
-
-            private static Func<StatefulServiceContext, ActorTypeInformation, ActorService> CreateFactoryFunc(IKernel kernel, Type serviceType, Type actorType)
-            {
-                ActorBase ActorResolveFunc(ActorService actorService, ActorId actorId)
-                {
-                    try
-                    {
-                        return (ActorBase) kernel.Resolve(
-                            actorType,
-                            new Arguments()
-                                .AddTyped<ActorService>(actorService)
-                                .AddTyped<ActorId>(actorId)
-                        );
-                    }
-                    catch (Exception e)
-                    {
-                        ActorEventSource.Current.Message("Failed to resolve Actor type {0}.\n{1}", actorType, e);
-                        throw;
-                    }
-                }
-
-                return (ctx, info) =>
-                {
-                    try
-                    {
-                        return (ActorService) kernel.Resolve(
-                            serviceType,
-                            new Arguments()
-                                .AddTyped<StatefulServiceContext>(ctx)
-                                .AddTyped<ActorTypeInformation>(info)
-                                .AddTyped<Func<ActorService, ActorId, ActorBase>>(ActorResolveFunc)
-                        );
-                    }
-                    catch (Exception e)
-                    {
-                        ActorEventSource.Current.Message("Failed to resolve ActorService type {0}.\n{1}", serviceType, e);
-                        throw;
-                    }
-                };
             }
         }
     }

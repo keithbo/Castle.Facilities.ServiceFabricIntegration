@@ -1,6 +1,7 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
     using System;
+    using System.Linq;
     using Castle.Core;
     using Castle.MicroKernel;
     using Castle.MicroKernel.SubSystems.Conversion;
@@ -33,19 +34,42 @@
             return text == null ? null : converter.PerformConversion<Type>(text);
         }
 
-        public static IRegistrationWrapper MakeWrapper(IHandler handler, Type wrapperType, params object[] args)
+        public static DependencyModel GetDependencyFor(this ComponentModel model, Type type)
         {
-            return (IRegistrationWrapper)Activator.CreateInstance(wrapperType.MakeGenericType(handler.ComponentModel.Implementation), args);
+            return model.Dependencies.FirstOrDefault(dependency => dependency.TargetItemType.IsAssignableFrom(type));
         }
 
-        public static object GetProperty(this IHandler handler, string name)
+        public static bool TryGetDependencyType<TDependency>(this ComponentModel model, out Type dependencyType)
         {
-            return handler.ComponentModel.ExtendedProperties[name];
+            var dependency = model.GetDependencyFor(typeof(TDependency));
+            if (dependency == null)
+            {
+                dependencyType = null;
+                return false;
+            }
+
+            dependencyType = dependency.TargetItemType;
+            return true;
         }
 
-        public static T GetProperty<T>(this IHandler handler, string name)
+        public static T GetProperty<T>(this IHandler handler, object key)
         {
-            return (T)handler.ComponentModel.ExtendedProperties[name];
+            return handler.ComponentModel.GetProperty<T>(key);
+        }
+
+        public static T GetProperty<T>(this ComponentModel model, object key)
+        {
+            return (T)model.ExtendedProperties[key];
+        }
+
+        public static void SetProperty(this ComponentModel model, object key, object value)
+        {
+            model.ExtendedProperties[key] = value;
+        }
+
+        public static void SetProperty<T>(this ComponentModel model, T value)
+        {
+            model.SetProperty(typeof(T), value);
         }
 
         public static string GetAttribute(this ComponentModel model, string name)

@@ -5,6 +5,7 @@
     using Castle.MicroKernel.Registration;
     using Castle.MicroKernel.SubSystems.Configuration;
     using Castle.Windsor;
+    using Microsoft.ServiceFabric.Actors.Runtime;
 
     /// <summary>
     /// Default windsor installer for basic test setup
@@ -23,7 +24,14 @@
 
             container.Register(
                 Component.For<TestActorService>().LifestyleTransient(),
-                Component.For<TestActor>().AsActor<TestActor>().LifestyleTransient());
+                Component.For<TestActor>().AsActor(c => c.ServiceSettings = new ActorServiceSettings
+                {
+                    ActorConcurrencySettings = new ActorConcurrencySettings
+                    {
+                        ReentrancyMode = ActorReentrancyMode.Disallowed
+                    }
+                }).LifestyleTransient()
+            );
         }
     }
 }
