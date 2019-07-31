@@ -12,7 +12,7 @@
     <Company />
     <Copyright>Copyright ©  2019</Copyright>
     <Authors>Keith Bosacker</Authors>
-    <VersionPrefix>2.1.0</VersionPrefix>
+    <VersionPrefix>2.2.0</VersionPrefix>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/keithbo/Castle.Facilities.ServiceFabricIntegration</PackageProjectUrl>
     <PackageTags>Azure Service Fabric Castle Windsor Integration IoC Actors</PackageTags>
@@ -21,8 +21,8 @@
     <RootNamespace>Castle.Facilities.ServiceFabricIntegration</RootNamespace>
     <Product>Castle Windsor ServiceFabric Actors Integration</Product>
     <Platforms>AnyCPU;x64</Platforms>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
