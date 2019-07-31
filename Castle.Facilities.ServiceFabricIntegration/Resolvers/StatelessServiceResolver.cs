@@ -17,7 +17,7 @@
                 throw new ArgumentException($"Type {serviceType} must extend type StatelessService");
             }
 
-            _kernel = kernel;
+            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
             _serviceType = serviceType;
         }
 

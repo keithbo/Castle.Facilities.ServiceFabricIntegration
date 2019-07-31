@@ -17,12 +17,12 @@
         /// </see>
         /// to be realized upon registration of an actor type
         /// </summary>
-        private static readonly MethodInfo RuntimeRegistrationMethod;
+        internal static readonly MethodInfo RuntimeRegistrationMethod;
 
         /// <summary>
         /// cache compiled types to avoid re-compile in case of duplicate type
         /// </summary>
-        private static readonly ConcurrentDictionary<Type, Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task>> RegistrationCache;
+        internal static readonly ConcurrentDictionary<Type, Func<Func<StatefulServiceContext, ActorTypeInformation, ActorService>, Task>> RegistrationCache;
 
         static RuntimeRegistration()
         {
@@ -49,6 +49,11 @@
             if (!typeof(ActorBase).IsAssignableFrom(actorType))
             {
                 throw new ArgumentException($"Type {actorType} must extend type ActorBase");
+            }
+
+            if (actorType.IsAbstract)
+            {
+                throw new ArgumentException($"Type {actorType} cannot be abstract");
             }
 
             _registerAsync = RegistrationCache.GetOrAdd(actorType, CreateRegistrationFunc);

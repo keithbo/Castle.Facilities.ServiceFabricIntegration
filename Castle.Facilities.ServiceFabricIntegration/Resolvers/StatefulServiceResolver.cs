@@ -21,7 +21,7 @@
                 throw new ArgumentException($"Type {serviceType} must extend type StatefulServiceBase");
             }
 
-            _kernel = kernel;
+            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
             _serviceType = serviceType;
         }
 
@@ -31,7 +31,7 @@
             {
                 var arguments = new Arguments();
                 arguments.AddTyped(ctx);
-                if (StateManagerConfiguration != null)
+                if (StateManagerConfiguration != null && StateManagerDependencyType != null)
                 {
                     arguments.AddTyped(StateManagerDependencyType, new ReliableStateManager(ctx, StateManagerConfiguration));
                 }

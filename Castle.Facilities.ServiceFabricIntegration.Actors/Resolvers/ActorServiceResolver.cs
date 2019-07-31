@@ -26,7 +26,7 @@
                 throw new ArgumentException($"Type {serviceType} must extend type ActorService");
             }
 
-            _kernel = kernel;
+            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
             _serviceType = serviceType;
         }
 

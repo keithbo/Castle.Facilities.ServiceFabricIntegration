@@ -17,7 +17,7 @@
                 throw new ArgumentException($"Type {actorType} must extend type ActorBase");
             }
 
-            _kernel = kernel;
+            _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
             _actorType = actorType;
         }
 

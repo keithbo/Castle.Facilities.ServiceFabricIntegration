@@ -5,9 +5,7 @@
 
     public interface IActorConfigurer
     {
-        IActorConfigurer WithService<TService>();
-
-        IActorConfigurer WithService(Type serviceType);
+        Type ServiceType { get; set; }
 
         Func<ActorBase, IActorStateProvider, IActorStateManager> StateManagerFactory { get; set; }
 

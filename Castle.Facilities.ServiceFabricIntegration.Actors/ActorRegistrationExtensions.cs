@@ -48,5 +48,20 @@
         {
             return configurer.Using(new ActorModule());
         }
+
+        public static IActorConfigurer WithService<TService>(this IActorConfigurer configurer)
+            where TService : ActorService
+        {
+            var serviceType = typeof(TService);
+            configurer.ServiceType = serviceType;
+            return configurer;
+        }
+
+        public static IActorConfigurer WithService(this IActorConfigurer configurer, Type serviceType)
+        {
+            ActorHelpers.ValidateServiceType(serviceType);
+            configurer.ServiceType = serviceType;
+            return configurer;
+        }
     }
 }
