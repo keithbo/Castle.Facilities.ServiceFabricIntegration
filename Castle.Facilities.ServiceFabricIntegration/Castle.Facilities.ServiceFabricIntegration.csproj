@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net452</TargetFrameworks>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
@@ -19,7 +20,6 @@
     <PackageTags>Azure Service Fabric Castle Windsor Integration IoC</PackageTags>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\SignKey.snk</AssemblyOriginatorKeyFile>
-    <Platforms>AnyCPU;x64</Platforms>
     <AssemblyVersion>2.2.0.0</AssemblyVersion>
     <FileVersion>2.2.0.0</FileVersion>
   </PropertyGroup>
