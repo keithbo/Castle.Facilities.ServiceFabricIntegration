@@ -1,11 +1,9 @@
 ﻿namespace Castle.Facilities.ServiceFabricIntegration
 {
-    using System;
     using System.Diagnostics;
-    using System.Fabric;
-    using System.Threading.Tasks;
     using Castle.Core;
     using Castle.Core.Internal;
+    using Castle.Facilities.ServiceFabricIntegration.Resolvers;
     using Castle.MicroKernel;
     using Castle.MicroKernel.SubSystems.Conversion;
     using Microsoft.ServiceFabric.Services.Runtime;
@@ -37,10 +35,13 @@
 
         public void RegisterComponent(IKernel kernel, IHandler handler)
         {
-            new StatelessWrapper(
+            var model = handler.ComponentModel;
+
+            var serviceResolver = new StatelessServiceResolver(kernel, model.Implementation);
+
+            ServiceRuntime.RegisterServiceAsync(
                     handler.GetProperty<string>(FacilityConstants.ServiceTypeNameKey),
-                    handler.ComponentModel.Implementation)
-                .RegisterAsync(kernel)
+                    serviceResolver.Resolve)
                 .GetAwaiter()
                 .GetResult();
 
@@ -60,37 +61,6 @@
         private static bool HasStatelessAttributeSet(ComponentModel model, ITypeConverter converter)
         {
             return Helpers.IsFlag(model, converter, FacilityConstants.StatelessServiceKey);
-        }
-
-        public class StatelessWrapper : IRegistrationWrapper
-        {
-            private readonly string _serviceTypeName;
-            private readonly Type _serviceType;
-
-            public StatelessWrapper(string serviceTypeName, Type serviceType)
-            {
-                _serviceTypeName = serviceTypeName;
-                _serviceType = serviceType;
-            }
-
-            public Task RegisterAsync(IKernel kernel)
-            {
-                return ServiceRuntime.RegisterServiceAsync(_serviceTypeName, ctx =>
-                {
-                    try
-                    {
-                        var arguments = new Arguments();
-                        arguments.AddTyped<StatelessServiceContext>(ctx);
-
-                        return (StatelessService)kernel.Resolve(_serviceType, arguments);
-                    }
-                    catch (Exception e)
-                    {
-                        ServiceEventSource.Current.Message("Failed to resolve StatelessService type {0}.\n{1}", _serviceType, e);
-                        throw;
-                    }
-                });
-            }
         }
     }
 }

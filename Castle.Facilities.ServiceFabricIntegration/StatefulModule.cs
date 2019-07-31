@@ -2,10 +2,9 @@
 {
     using System;
     using System.Diagnostics;
-    using System.Fabric;
-    using System.Threading.Tasks;
     using Castle.Core;
     using Castle.Core.Internal;
+    using Castle.Facilities.ServiceFabricIntegration.Resolvers;
     using Castle.MicroKernel;
     using Castle.MicroKernel.SubSystems.Conversion;
     using Microsoft.ServiceFabric.Data;
@@ -47,12 +46,15 @@
                 throw new ComponentRegistrationException($"Failed to register StatefulService {model.Implementation}. Could not locate a valid dependency input that accepts {typeof(ReliableStateManager)} when an explicit state manager configuration is specified.");
             }
 
-            new StatefulWrapper(
+            var serviceResolver = new StatefulServiceResolver(kernel, model.Implementation)
+            {
+                StateManagerConfiguration = stateManagerConfig,
+                StateManagerDependencyType = stateManagerDependencyType
+            };
+
+            ServiceRuntime.RegisterServiceAsync(
                     handler.GetProperty<string>(FacilityConstants.ServiceTypeNameKey),
-                    model.Implementation,
-                    stateManagerConfig,
-                    stateManagerDependencyType)
-                .RegisterAsync(kernel)
+                    serviceResolver.Resolve)
                 .GetAwaiter()
                 .GetResult();
 
@@ -72,45 +74,6 @@
         private static bool HasStatefulAttributeSet(ComponentModel model, ITypeConverter converter)
         {
             return Helpers.IsFlag(model, converter, FacilityConstants.StatefulServiceKey);
-        }
-
-        public class StatefulWrapper : IRegistrationWrapper
-        {
-            private readonly string _serviceTypeName;
-            private readonly Type _serviceType;
-            private readonly ReliableStateManagerConfiguration _stateManagerConfiguration;
-            private readonly Type _stateManagerDependencyType;
-
-            public StatefulWrapper(string serviceTypeName, Type serviceType, ReliableStateManagerConfiguration stateManagerConfiguration, Type stateManagerDependencyType)
-            {
-                _serviceTypeName = serviceTypeName;
-                _serviceType = serviceType;
-                _stateManagerConfiguration = stateManagerConfiguration;
-                _stateManagerDependencyType = stateManagerDependencyType;
-            }
-
-            public Task RegisterAsync(IKernel kernel)
-            {
-                return ServiceRuntime.RegisterServiceAsync(_serviceTypeName, ctx =>
-                {
-                    try
-                    {
-                        var arguments = new Arguments();
-                        arguments.AddTyped<StatefulServiceContext>(ctx);
-                        if (_stateManagerConfiguration != null)
-                        {
-                            arguments.AddTyped(_stateManagerDependencyType, new ReliableStateManager(ctx, _stateManagerConfiguration));
-                        }
-
-                        return (StatefulServiceBase)kernel.Resolve(_serviceType, arguments);
-                    }
-                    catch (Exception e)
-                    {
-                        ServiceEventSource.Current.Message("Failed to resolve StatefulService type {0}.\n{1}", _serviceType, e);
-                        throw;
-                    }
-                });
-            }
         }
     }
 }
